@@ -76,8 +76,8 @@ type Props = {
 }
 
 export const TodoForm: React.FC<Props> = ({ onSubmit, todo }) => {
-  const titleRef = useRef<HTMLInputElement>(null);
-  const userRef = useRef<HTMLSelectElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null); // trying out useRef here, it
+  const userRef = useRef<HTMLSelectElement>(null); // is not better necessarily..
 
   const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
