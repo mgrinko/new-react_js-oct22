@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Todo } from '../types/Todo';
-import { User } from '../types/User';
+import { useRef } from 'react';
+import { Todo } from '../../types/Todo';
+import { User } from '../../types/User';
 
 
 export const usersFromServer: User[] = [
@@ -76,45 +76,58 @@ type Props = {
 }
 
 export const TodoForm: React.FC<Props> = ({ onSubmit, todo }) => {
-  const [newTodoTitle, setNewTodoTitle] = useState(todo?.title || '');
-  const [selectedUserId, setSelectedUserId] = useState(todo?.userId || 0);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const userRef = useRef<HTMLSelectElement>(null);
+
+  const handleSubmit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
+    if (titleRef.current && titleRef.current.value && userRef.current && userRef.current.value !== '0') {
+      const userId = parseInt(userRef.current.value);
+      onSubmit({
+        id: todo?.id || Date.now(),
+        title: titleRef.current.value,
+        userId,
+        completed: false,
+        user: getUser(userId),
+      });
+      titleRef.current.value = '';
+      userRef.current.value = '0';
+    }
+  }
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
+    <><tr style={{width: '100%', height: '1rem'}}></tr>
+    <tr style={{background: '#ccc'}}>
+      <td>
+        <select
+          ref={userRef}
+        >
+          <option value="0">---</option>
+          {usersFromServer.map(user => (
+            <option key={user.id} value={user.id}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+      </td>
 
-        onSubmit({
-          id: todo?.id || Date.now(),
-          title: newTodoTitle,
-          userId: selectedUserId,
-          completed: todo?.completed || false,
-          user: getUser(selectedUserId),
-        });
-      }}
-    >
-      <input
-        type="text"
-        value={newTodoTitle}
-        onChange={(event) => {
-          setNewTodoTitle(event.target.value);
-        }} />
+      <td>
+        <input
+          type="text"
+          ref={titleRef}
+        />
+      </td>
 
-      <select
-        value={selectedUserId}
-        onChange={(event) => {
-          setSelectedUserId(+event.target.value);
-        }}
-      >
-        <option value="0">---</option>
-        {usersFromServer.map(user => (
-          <option key={user.id} value={user.id}>
-            {user.name}
-          </option>
-        ))}
-      </select>
+      <td>⌛</td>
 
-      <button>{todo ? 'Save' : 'Add'}</button>
-    </form>
+      <td>
+        <button
+          onClick={(event) => handleSubmit(event)}
+        >
+          {todo ? 'Save' : 'Add'}
+        </button>
+      </td>
+      <td></td>
+    </tr></>
   );
 };

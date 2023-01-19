@@ -1,8 +1,7 @@
-import { useCallback } from 'react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import './App.scss';
-import { getUser, TodoForm } from './components/TodoForm';
-import { TodoList } from './components/TodoList';
+import { getUser } from './components/Todos/TodoForm';
+import Todos from './components/Todos/Todos';
 import { Todo, TodoWithoutUser } from './types/Todo';
 
 const todosFromServer: TodoWithoutUser[] = [
@@ -36,52 +35,43 @@ export function App() {
       user: getUser(todo.userId),
     }))
   });
-  const [query, setQuery] = useState('');
-
-  console.log(oldTodos, todos, oldTodos === todos);
-  oldTodos = todos;
-  
-  function addTodo(newTodo: Todo) {
-    setTodos([...todos, newTodo])
-  }
-
+  const addTodo = useCallback(
+    (newTodo: Todo) => {
+      setTodos([...todos, newTodo])
+    },
+    [todos],
+  )
   const deleteTodo = useCallback(
     (todoToDelete: Todo) => {
       setTodos(todos.filter(
-        todo => todo.id !== todoToDelete.id,
+        todo => (todo as Todo).id !== todoToDelete.id,
       ));
     },
-
     [todos],
   );
+  const updateTodo = useCallback((updatedTodo: Todo) => {
+    setTodos(todos.map(todo => {
+      if (todo.id !== updatedTodo.id) {
+        return todo;
+      }
+      return updatedTodo;
+    }));
+  }, [todos]);
 
+  console.log(oldTodos, todos, oldTodos === todos);
+  oldTodos = todos;
   console.log(oldDelete, deleteTodo, oldDelete === deleteTodo);
   oldDelete = deleteTodo;
-  
-
-  // function updateTodo(updatedTodo: Todo) {
-  //   setTodos(todos.map(todo => {
-  //     if (todo.id !== updatedTodo.id) {
-  //       return todo;
-  //     }
-
-  //     return updatedTodo;
-  //   }));
-  // }
 
   return (
-    <div className="App">
-      <input
-        type="text"
-        value={query}
-        onChange={event => setQuery(event.target.value)}
-      />
-      <TodoForm onSubmit={addTodo} />
-      <TodoList
-        todos={todos}
-        onTodoDeleted={deleteTodo}
-      />
-    </div>
+  <div className="App">
+    <Todos
+      todos={todos}
+      onTodoDeleted={deleteTodo}
+      onTodoUpdated={updateTodo}
+      addTodo={addTodo}
+    />
+  </div>
   );
 }
 
