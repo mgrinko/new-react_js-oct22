@@ -55,19 +55,14 @@ export function App() {
     [todos],
   );
 
+  const updateTodo = (updatedTodo: Todo) => {
+    setTodos(todos.map(
+      todo => todo.id === updatedTodo.id ? updatedTodo : todo
+    ));
+  };
+
   console.log(oldDelete, deleteTodo, oldDelete === deleteTodo);
   oldDelete = deleteTodo;
-  
-
-  // function updateTodo(updatedTodo: Todo) {
-  //   setTodos(todos.map(todo => {
-  //     if (todo.id !== updatedTodo.id) {
-  //       return todo;
-  //     }
-
-  //     return updatedTodo;
-  //   }));
-  // }
 
   return (
     <div className="App">
@@ -80,6 +75,7 @@ export function App() {
       <TodoList
         todos={todos}
         onTodoDeleted={deleteTodo}
+        onTodoUpdated={updateTodo}
       />
     </div>
   );
