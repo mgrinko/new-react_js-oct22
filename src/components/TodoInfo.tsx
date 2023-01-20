@@ -8,34 +8,37 @@ type Props = {
   onUpdate: (todo: Todo) => void;
 };
 
-export const TodoInfo: React.FC<Props> = ({
-  todo, onDelete, onUpdate
-}) => {
-  const [isEditing, setEditing] = useState(false);
-  const save = (updatedTodo: Todo) => {
-    onUpdate(updatedTodo);
-    setEditing(false);
-  };
+const cache: { [key: string]: Todo } = {};
 
-  console.log('TodoInfo', todo.id);
-
-  if (isEditing) {
+export const TodoInfo: React.FC<Props> = React.memo(
+  ({ todo, onDelete, onUpdate }) => {
+    const [isEditing, setEditing] = useState(false);
+    const save = (updatedTodo: Todo) => {
+      onUpdate(updatedTodo);
+      setEditing(false);
+    };
+  
+    console.log('TodoInfo', todo.id, cache[todo.id] === todo);
+    cache[todo.id] = todo;
+  
+    if (isEditing) {
+      return (
+        <div>
+          <TodoForm onSubmit={save} todo={todo} />
+          <button onClick={() => setEditing(false)}>
+            Cancel
+          </button>
+        </div>
+      );
+    }
+  
     return (
       <div>
-        <TodoForm onSubmit={save} todo={todo} />
-        <button onClick={() => setEditing(false)}>
-          Cancel
-        </button>
+        <button onClick={() => onDelete(todo)}>Del</button>
+        <i>{todo.user?.name + ': ' + todo.title}</i>
+        <b>{` [${todo.completed ? 'X' : '0'}]`}</b>
+        <button onClick={() => setEditing(true)}>Edit</button>
       </div>
     );
-  }
-
-  return (
-    <div>
-      <button onClick={() => onDelete(todo)}>x</button>
-      <i>{todo.user?.name + ': ' + todo.title}</i>
-      <b>{` [${todo.completed ? 'X' : '0'}]`}</b>
-      <button onClick={() => setEditing(true)}>Edit</button>
-    </div>
-  );
-};
+  },
+);

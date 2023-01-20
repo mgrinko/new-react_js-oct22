@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useState } from 'react';
 import './App.scss';
 import { getUser, TodoForm } from './components/TodoForm';
@@ -26,43 +26,37 @@ const todosFromServer: TodoWithoutUser[] = [
   },
 ];
 
-let oldTodos: Todo[] = [];
-let oldDelete: (todo: Todo) => void = () => {};
 
 export function App() {
+  const [query, setQuery] = useState('');
   const [todos, setTodos] = useState<Todo[]>(() => {
     return todosFromServer.map(todo => ({
       ...todo,
       user: getUser(todo.userId),
     }))
   });
-  const [query, setQuery] = useState('');
 
-  console.log(oldTodos, todos, oldTodos === todos);
-  oldTodos = todos;
-  
   function addTodo(newTodo: Todo) {
     setTodos([...todos, newTodo])
   }
 
   const deleteTodo = useCallback(
     (todoToDelete: Todo) => {
-      setTodos(todos.filter(
+      setTodos(currentTodos => currentTodos.filter(
         todo => todo.id !== todoToDelete.id,
       ));
     },
 
-    [todos],
+    [],
   );
 
-  const updateTodo = (updatedTodo: Todo) => {
-    setTodos(todos.map(
-      todo => todo.id === updatedTodo.id ? updatedTodo : todo
-    ));
-  };
-
-  console.log(oldDelete, deleteTodo, oldDelete === deleteTodo);
-  oldDelete = deleteTodo;
+  const updateTodo = useMemo(() => {
+    return (updatedTodo: Todo) => {
+      setTodos(currentTodos => currentTodos.map(
+        todo => todo.id === updatedTodo.id ? updatedTodo : todo
+      ));
+    };
+  }, []);
 
   return (
     <div className="App">
