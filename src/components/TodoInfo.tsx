@@ -35,9 +35,9 @@ export const TodoInfo: React.FC<Props> = React.memo(
     return (
       <div>
         <button onClick={() => onDelete(todo)}>Del</button>
+        <button onClick={() => setEditing(true)}>Edit</button>
         <i>{todo.user?.name + ': ' + todo.title}</i>
         <b>{` [${todo.completed ? 'X' : '0'}]`}</b>
-        <button onClick={() => setEditing(true)}>Edit</button>
       </div>
     );
   },
