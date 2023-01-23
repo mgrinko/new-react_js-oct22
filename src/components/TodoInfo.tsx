@@ -13,6 +13,7 @@ const cache: { [key: string]: Todo } = {};
 export const TodoInfo: React.FC<Props> = React.memo(
   ({ todo, onDelete, onUpdate }) => {
     const [isEditing, setEditing] = useState(false);
+
     const save = (updatedTodo: Todo) => {
       onUpdate(updatedTodo);
       setEditing(false);

@@ -1,26 +1,43 @@
-import React from 'react';
-import { Todo } from '../types/Todo';
+import { debounce } from 'lodash';
+import React, { useCallback, useContext, useState } from 'react';
+import { TodosContext } from '../TodosContext';
 import { TodoInfo } from './TodoInfo';
 
-type Props = {
-  todos: Todo[];
-  onTodoDeleted: (todo: Todo) => void;
-  onTodoUpdated: (todo: Todo) => void;
-};
+export const TodoList: React.FC = React.memo(() => {
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const { todos, deleteTodo, updateTodo } = useContext(TodosContext);
 
-export const TodoList: React.FC<Props> = React.memo(
-  ({ todos, onTodoDeleted, onTodoUpdated }) => {
-    return (
-      <div className="TodoList">
-        {todos.map(todo => (
-          <TodoInfo
-            key={todo.id}
-            todo={todo}
-            onDelete={onTodoDeleted}
-            onUpdate={onTodoUpdated}
-          />
-        ))}
-      </div>
-    );
-  },
-);
+  const applyQuery = useCallback(
+    debounce(setDebouncedQuery, 1000),
+    [],
+  );
+
+  const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+    applyQuery(event.target.value);
+  };
+
+  let visibleTodos = todos.filter(
+    todo => todo.title.toLowerCase().includes(debouncedQuery.toLowerCase())
+  );
+
+  return (
+    <div className="TodoList">
+      <input
+        type="text"
+        value={query}
+        onChange={handleQueryChange}
+      />
+
+      {visibleTodos.map(todo => (
+        <TodoInfo
+          key={todo.id}
+          todo={todo}
+          onUpdate={updateTodo}
+          onDelete={deleteTodo}
+        />
+      ))}
+    </div>
+  );
+});
