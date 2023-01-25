@@ -1,14 +1,17 @@
-import { useContext } from 'react';
+import { useState } from 'react';
 import './App.scss';
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
-import { TodosContext } from './TodosContext';
+import { useTodosContext } from './TodosContext';
 
 export function App() {
-  const { addTodo } = useContext(TodosContext);;
+  const { addTodo } = useTodosContext();
+  const [value, setValue] = useState(1);
 
   return (
     <div className="App">
+      <button onClick={() => setValue(value + 1)}>{value}</button>
+
       <TodoForm onSubmit={addTodo} />
       <TodoList />
     </div>

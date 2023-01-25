@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Todo, TodoWithoutUser } from './types/Todo';
 import * as usersService from './utils.ts/usersService';
 
@@ -9,24 +9,31 @@ interface ITodosContext {
   deleteTodo: (todo: Todo) => void,
 }
 
-export const TodosContext = React.createContext<ITodosContext>({
+const TodosContext = React.createContext<ITodosContext>({
   todos: [],
   addTodo: () => {},
   updateTodo: () => {},
   deleteTodo: () => {},
 });
 
+export const useTodosContext = () => {
+  return useContext(TodosContext);
+};
+
+const getTodos = (): Promise<Todo[]> => {
+  return fetch('https://mate-academy.github.io/react_dynamic-list-of-todos/api/todos.json')
+    .then((resposne) => resposne.json());
+};
+
 type Props = {
   children: React.ReactNode;
-}
+};
 
 export const TodosProvider: React.FC<Props> = ({ children }) => {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    fetch('https://mate-academy.github.io/react_dynamic-list-of-todos/api/todos.json')
-      .then(res => res.json())
-      .then((todosFromServer: TodoWithoutUser[]) => {
+    getTodos().then((todosFromServer: TodoWithoutUser[]) => {
         setTodos(todosFromServer.slice(-10).map(todo => ({
           ...todo,
           user: usersService.getById(todo.userId),
@@ -34,9 +41,12 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
       });
   }, []);
 
-  function addTodo(newTodo: Todo) {
-    setTodos(currentTodos => [...currentTodos, newTodo])
-  }
+  const addTodo = useCallback(
+    (newTodo: Todo) => {
+      setTodos(currentTodos => [...currentTodos, newTodo])
+    },
+    [],
+  );
 
   const deleteTodo = useCallback(
     (todoToDelete: Todo) => {
@@ -62,3 +72,18 @@ export const TodosProvider: React.FC<Props> = ({ children }) => {
     </TodosContext.Provider>
   );
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

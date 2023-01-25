@@ -1,12 +1,13 @@
 import { debounce } from 'lodash';
-import React, { useCallback, useContext, useState } from 'react';
-import { TodosContext } from '../TodosContext';
+import React, { useCallback, useState } from 'react';
+import { useTodosContext } from '../TodosContext';
 import { TodoInfo } from './TodoInfo';
 
 export const TodoList: React.FC = React.memo(() => {
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const { todos, deleteTodo, updateTodo } = useContext(TodosContext);
+  const { todos, deleteTodo, updateTodo } = useTodosContext();
+  // const { todos, deleteTodo, updateTodo } = useTodosContext();
 
   const applyQuery = useCallback(
     debounce(setDebouncedQuery, 1000),
